@@ -1,5 +1,4 @@
-// TODO : put Dday on github & get it through paket + compile => allow to use kudo for deployment
-#r "Dday.iCal.dll"
+#r "paket-files/devcrafting/DDay.iCal/DDay.iCal/bin/Debug/Dday.iCal.dll"
 #r "packages/Suave/lib/net40/suave.dll"
 #r "packages/Newtonsoft.Json/lib/net45/Newtonsoft.Json.dll"
 #r "packages/FAKE/tools/FakeLib.dll"

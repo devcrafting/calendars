@@ -6,3 +6,7 @@ NUGET
     Newtonsoft.Json (8.0.2)
     Suave (1.0.0)
       FSharp.Core (>= 3.1.2.5)
+GITHUB
+  remote: devcrafting/DDay.iCal
+  specs:
+    FULLPROJECT (c76d06c158d371bb4b86bafd16782154d4bb3fbb)
