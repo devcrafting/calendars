@@ -23,7 +23,7 @@ let activities dataDir =
 let mergedCalendar logger activities =
     Log.verbose logger "" Logging.TraceHeader.empty "Merging calendars"
     activities |> exportMergedCalendars 
-    Files.file "testMerge.ics"
+    Files.file "mergedCalendar.ics"
 
 let days logger activities =
     Log.verbose logger "" Logging.TraceHeader.empty "Retrieving days..."
@@ -63,7 +63,7 @@ open Fake
 let config = 
     let port = int (getBuildParamOrDefault "port" "8083")    
     { defaultConfig with
-        homeFolder = Some __SOURCE_DIRECTORY__
+        //homeFolder = Some __SOURCE_DIRECTORY__
         logger = Logging.Loggers.saneDefaultsFor Logging.LogLevel.Verbose
         bindings = [ HttpBinding.mkSimple HTTP "127.0.0.1" port ]
         mimeTypesMap = mimeTypes }
