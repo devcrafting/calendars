@@ -31,13 +31,32 @@ let days logger activities =
     |> Seq.map (fun a -> retrieveDaysForYear 2016 a)
     |> Seq.collect id
 
+type SynthesysData = {
+    ActivitiesByMonth: ActivityByMonth seq
+    Months: string seq
+    Totals: float seq 
+}
+
 let synthesisData logger days =
     Log.verbose logger "" Logging.TraceHeader.empty "SynthesisData"
     let minDay = days |> Seq.minBy (fun o -> o.Day)
     let maxDay = days |> Seq.maxBy (fun o -> o.Day)
-    days
-    |> Seq.groupBy (fun a -> a.Activity)
-    |> getActivitiesByMonth minDay maxDay
+    let activitiesByMonth =
+        days
+        |> Seq.groupBy (fun a -> a.Activity)
+        |> getActivitiesByMonth minDay maxDay
+        |> Seq.toList
+    let months =
+        activitiesByMonth
+        |> Seq.take 1 
+        |> Seq.collect (fun x -> x.ManDaysByMonth)
+        |> Seq.map (fun x -> x.Month)
+    let totals =
+        activitiesByMonth
+        |> Seq.collect (fun x -> x.ManDaysByMonth)
+        |> Seq.groupBy (fun x -> x.Month) 
+        |> Seq.map (fun x -> snd x |> Seq.sumBy (fun x -> x.ManDays))
+    { ActivitiesByMonth = activitiesByMonth; Months = months; Totals = totals } 
 
 open Newtonsoft.Json
 let JSON v =
@@ -51,19 +70,21 @@ let JSON v =
 let app : WebPart =
     let dataDir = Fake.EnvironmentHelper.getBuildParamOrDefault "data_dir" (__SOURCE_DIRECTORY__ + "\data")
     choose 
-        [ path "/" >=> OK "Welcome on my calendars"
+        [ path "/" >=> Files.file "public/default.html" 
           path "/mergedCalendar" >=> context (fun context -> (activities dataDir) |> (mergedCalendar context.runtime.logger))
-          path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> synthesisData context.runtime.logger |> JSON) ]
+          path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> synthesisData context.runtime.logger |> JSON)
+          Files.browseHome ]
 
 let mimeTypes =
-  function | ".ics" -> mkMimeType "text/calendar" false | _ -> None
+    defaultMimeTypesMap
+        @@ (function | ".ics" -> mkMimeType "text/calendar" false | _ -> None)
 
 open Fake
 
 let config = 
     let port = int (getBuildParamOrDefault "port" "8083")    
     { defaultConfig with
-        //homeFolder = Some __SOURCE_DIRECTORY__
+        homeFolder = Some __SOURCE_DIRECTORY__
         logger = Logging.Loggers.saneDefaultsFor Logging.LogLevel.Verbose
         bindings = [ HttpBinding.mkSimple HTTP "127.0.0.1" port ]
         mimeTypesMap = mimeTypes }

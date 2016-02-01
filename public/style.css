@@ -1,0 +1,21 @@
+table {
+	border-collapse:collapse;
+	border: thin solid;	
+}
+
+table td {
+	text-align: right;
+	margin: 0px;
+	padding: 5px;
+	border: thin solid;
+	min-width: 50px;
+}
+
+table thead, table tfoot {
+	font-weight: bold;
+}
+
+table tr td:first-child {
+	font-weight: bold;
+	text-align: left;
+}
