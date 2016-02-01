@@ -10,7 +10,10 @@
 		<div ng-controller="ActivitiesByMonthViewModel as activitiesViewModel" id="container">
 			
 			<h1>Activities Synthesis</h1>
-			<table>
+			<p ng-show="activitiesViewModel.loading">
+				<img src="/public/ajax-loader.gif"/>Loading synthesis...
+			</p>
+			<table ng-hide="activitiesViewModel.loading" ng-cloak>
 				<thead>
 					<tr>
 						<td>Activity</td>

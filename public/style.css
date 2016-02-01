@@ -1,3 +1,7 @@
+[ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak {
+    display: none;
+}
+
 table {
 	border-collapse:collapse;
 	border: thin solid;	
