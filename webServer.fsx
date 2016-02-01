@@ -35,6 +35,8 @@ type SynthesysData = {
     ActivitiesByMonth: ActivityByMonth seq
     Months: string seq
     Totals: float seq 
+    TotalManDays: float
+    TotalRevenues: float
 }
 
 let synthesisData logger days =
@@ -56,7 +58,9 @@ let synthesisData logger days =
         |> Seq.collect (fun x -> x.ManDaysByMonth)
         |> Seq.groupBy (fun x -> x.Month) 
         |> Seq.map (fun x -> snd x |> Seq.sumBy (fun x -> x.ManDays))
-    { ActivitiesByMonth = activitiesByMonth; Months = months; Totals = totals } 
+    { ActivitiesByMonth = activitiesByMonth; Months = months; Totals = totals;
+        TotalManDays = activitiesByMonth |> Seq.sumBy (fun x -> x.TotalManDays);
+        TotalRevenues = activitiesByMonth |> Seq.sumBy (fun x -> x.TotalRevenue) } 
 
 open Newtonsoft.Json
 let JSON v =

@@ -18,6 +18,8 @@
                     self.activities = data.activitiesByMonth;
                     self.totals = data.totals;
                     self.months = data.months;
+                    self.totalManDays = data.totalManDays;
+                    self.totalRevenues = data.totalRevenues;
                     self.loading = false;
                 }); 
             };
