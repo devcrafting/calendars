@@ -76,6 +76,14 @@ let mergeCalendars (calendars: IICalendar seq) : iCalendar =
                                 calendar.MergeWith(c)
                                 calendar) calendar
 
+let getOverloadedDays days =
+    days
+    |> Seq.groupBy (fun x -> x.Day)
+    |> Seq.filter (fun x -> 
+        (snd x) |> Seq.forall (fun x -> not (x.Activity.Name.Contains("#overloadChecked")))
+        && (snd x) |> Seq.sumBy (fun y -> y.Hours) > 8.0)
+    |> Seq.sortBy fst
+
 open DDay.iCal.Serialization.iCalendar
 
 let exportMergedCalendars activities = 

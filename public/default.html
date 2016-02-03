@@ -10,10 +10,10 @@
 		<div ng-controller="ActivitiesByMonthViewModel as activitiesViewModel" id="container">
 			
 			<h1>Activities Synthesis</h1>
-			<p ng-show="activitiesViewModel.loading">
+			<p ng-show="activitiesViewModel.loadingSynthesis">
 				<img src="/public/ajax-loader.gif"/>Loading synthesis...
 			</p>
-			<table ng-hide="activitiesViewModel.loading" ng-cloak>
+			<table ng-hide="activitiesViewModel.loadingSynthesis" ng-cloak>
 				<thead>
 					<tr>
 						<td>Activity</td>
@@ -37,10 +37,18 @@
 					</tr>
 				</tfoot>
 			</table>
-			<!--<ul>
-				<li><input type="text" ng-model="todo.text" placeholder="New todo item.."> <a href="#" ng-click="todo.create()">[ADD]</a></li>
-				<li ng-repeat="item in todo.todos"><a href="#" ng-click="todo.remove(item.id)">[DONE]</a> {{ item.text }}</li>
-			</ul>-->
+			<h1>Overloaded days</h1>
+			<p>Days are considered overloaded when there are more than 8 hours a day, and it is not tagged with '#overloadChecked'.</p>
+			<p ng-show="activitiesViewModel.loadingOverloadedDays">
+				<img src="/public/ajax-loader.gif"/>Loading overloaded days...
+			</p>
+			<ul ng-hide="activitiesViewModel.loadingOverloadedDays" ng-cloak>
+				<li ng-repeat="day in activitiesViewModel.overloadedDays">{{ day.item1 }}
+					<ul>
+						<li ng-repeat="activity in day.item2">{{ activity.activity.name + " - " + activity.hours + " hours" }}</li>
+					</ul>
+				</li>
+			</ul>
 							
 		</div>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>

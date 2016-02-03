@@ -5,25 +5,35 @@
         app.controller("ActivitiesByMonthViewModel", function($scope, $http) {    
             var self = this;
             
-            self.loading = true;
+            self.loadingSynthesis = true;
+            self.loadingOverloadedDays = true;
             self.months = [];
             self.activities = [];
             self.totals = [];
             self.totalManDays = "-";
             self.totalRevenues = "-";
            
-            var load = function() { 
-                self.loading = true;
+            var loadSynthesis = function() { 
+                self.loadingSynthesis = true;
                 $http.get('/synthesis').success(function(data) {
                     self.activities = data.activitiesByMonth;
                     self.totals = data.totals;
                     self.months = data.months;
                     self.totalManDays = data.totalManDays;
                     self.totalRevenues = data.totalRevenues;
-                    self.loading = false;
+                    self.loadingSynthesis = false;
                 }); 
             };
             
-            load();
+            var loadOverloadedDays = function() { 
+                self.loadingOverloadedDays = true;
+                $http.get('/overloadedDays').success(function(data) {
+                    self.overloadedDays = data
+                    self.loadingOverloadedDays = false;
+                }); 
+            };
+            
+            loadSynthesis();
+            loadOverloadedDays();
         });
     })();

@@ -70,13 +70,13 @@ let JSON v =
     |> OK
     >=> setMimeType "application/json; charset=utf-8"
 
-// TODO : append HTML with binding on JSON data
 let app : WebPart =
     let dataDir = Fake.EnvironmentHelper.getBuildParamOrDefault "data_dir" (__SOURCE_DIRECTORY__ + "\data")
     choose 
         [ path "/" >=> Files.file "public/default.html" 
           path "/mergedCalendar" >=> context (fun context -> (activities dataDir) |> (mergedCalendar context.runtime.logger))
           path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> synthesisData context.runtime.logger |> JSON)
+          path "/overloadedDays" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> getOverloadedDays |> JSON)
           Files.browseHome ]
 
 let mimeTypes =
