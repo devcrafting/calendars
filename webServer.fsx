@@ -25,10 +25,10 @@ let mergedCalendar logger activities =
     activities |> exportMergedCalendars 
     Files.file "mergedCalendar.ics"
 
-let days logger activities =
+let days logger dataDir activities =
     Log.verbose logger "" Logging.TraceHeader.empty "Retrieving days..."
     activities
-    |> Seq.map (fun a -> retrieveDaysForYear 2016 a)
+    |> Seq.map (fun a -> retrieveDaysForYear 2016 a dataDir)
     |> Seq.collect id
     |> Seq.toList
 
@@ -76,9 +76,9 @@ let app : WebPart =
     choose 
         [ path "/" >=> Files.file "public/default.html" 
           path "/mergedCalendar" >=> context (fun context -> (activities dataDir) |> (mergedCalendar context.runtime.logger))
-          path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> synthesisData context.runtime.logger |> JSON)
-          path "/overloadedDays" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> getOverloadedDays |> JSON)
-          path "/xerox" >=> context (fun context -> (activities dataDir) |> Seq.filter (fun x -> x.Name = "Xerox") |> days context.runtime.logger |> Seq.map (fun x -> x.Day) |> JSON)
+          path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger dataDir |> synthesisData context.runtime.logger |> JSON)
+          path "/overloadedDays" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger dataDir |> getOverloadedDays |> JSON)
+          path "/xerox" >=> context (fun context -> (activities dataDir) |> Seq.filter (fun x -> x.Name = "Xerox") |> days context.runtime.logger dataDir |> Seq.map (fun x -> x.Day) |> JSON)
           path "/timezone" >=> OK TimeZone.CurrentTimeZone.StandardName
           Files.browseHome ]
 
