@@ -30,6 +30,7 @@ let days logger activities =
     activities
     |> Seq.map (fun a -> retrieveDaysForYear 2016 a)
     |> Seq.collect id
+    |> Seq.toList
 
 type SynthesysData = {
     ActivitiesByMonth: ActivityByMonth seq
@@ -77,6 +78,8 @@ let app : WebPart =
           path "/mergedCalendar" >=> context (fun context -> (activities dataDir) |> (mergedCalendar context.runtime.logger))
           path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> synthesisData context.runtime.logger |> JSON)
           path "/overloadedDays" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger |> getOverloadedDays |> JSON)
+          path "/xerox" >=> context (fun context -> (activities dataDir) |> Seq.filter (fun x -> x.Name = "Xerox") |> days context.runtime.logger |> Seq.map (fun x -> x.Day) |> JSON)
+          path "/timezone" >=> OK TimeZone.CurrentTimeZone.StandardName
           Files.browseHome ]
 
 let mimeTypes =

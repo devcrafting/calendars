@@ -22,6 +22,8 @@
                     self.totalManDays = data.totalManDays;
                     self.totalRevenues = data.totalRevenues;
                     self.loadingSynthesis = false;
+                    
+                    loadOverloadedDays();
                 }); 
             };
             
@@ -34,6 +36,5 @@
             };
             
             loadSynthesis();
-            loadOverloadedDays();
         });
     })();
