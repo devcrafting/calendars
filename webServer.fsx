@@ -1,8 +1,7 @@
-#r "paket-files/devcrafting/DDay.iCal/DDay.iCal/bin/Debug/Dday.iCal.dll"
 #r "packages/Suave/lib/net40/suave.dll"
 #r "packages/Newtonsoft.Json/lib/net45/Newtonsoft.Json.dll"
 #r "packages/FAKE/tools/FakeLib.dll"
-#load "calendrier.fs"
+#load "calendars.fsx"
 
 open Suave
 open Suave.Filters
@@ -20,10 +19,10 @@ let activities dataDir =
     serializerSettings.ContractResolver <- new Serialization.CamelCasePropertyNamesContractResolver()
     JsonConvert.DeserializeObject<Activity list>(File.ReadAllText(Path.Combine(dataDir,"devcrafting.json")))
 
-let mergedCalendar logger activities =
+(*let mergedCalendar logger activities =
     Log.verbose logger "" Logging.TraceHeader.empty "Merging calendars"
     activities |> exportMergedCalendars 
-    Files.file "mergedCalendar.ics"
+    Files.file "mergedCalendar.ics"*)
 
 let days logger dataDir activities =
     Log.verbose logger "" Logging.TraceHeader.empty "Retrieving days..."
@@ -75,7 +74,7 @@ let app : WebPart =
     let dataDir = Fake.EnvironmentHelper.getBuildParamOrDefault "data_dir" (__SOURCE_DIRECTORY__ + "\data")
     choose 
         [ path "/" >=> Files.file "public/default.html" 
-          path "/mergedCalendar" >=> context (fun context -> (activities dataDir) |> (mergedCalendar context.runtime.logger))
+          //path "/mergedCalendar" >=> context (fun context -> (activities dataDir) |> (mergedCalendar context.runtime.logger))
           path "/synthesis" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger dataDir |> synthesisData context.runtime.logger |> JSON)
           path "/overloadedDays" >=> context (fun context -> (activities dataDir) |> days context.runtime.logger dataDir |> getOverloadedDays |> JSON)
           path "/xerox" >=> context (fun context -> (activities dataDir) |> Seq.filter (fun x -> x.Name = "Xerox") |> days context.runtime.logger dataDir |> Seq.map (fun x -> x.Day) |> JSON)

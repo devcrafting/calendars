@@ -1,7 +1,11 @@
-module Calendars
+#r "packages/Ical.Net/lib/net46/Ical.Net.Collections.dll"
+#r "packages/Ical.Net/lib/net46/Ical.Net.dll"
 
-open DDay.iCal
-open DDay.iCal.Serialization.iCalendar
+open Ical.Net
+open Ical.Net.DataTypes
+open Ical.Net.Interfaces
+open Ical.Net.Interfaces.Components
+open Ical.Net.Serialization.iCalendar.Serializers
 
 open System
 open System.IO
@@ -30,22 +34,13 @@ let findDaysForEvent (startDate:DateTime) endDate subject (event: IEvent) =
         |> Seq.collect id
 
 let retrieveDays startDate endDate activity dataDir =
-    let calendars = iCalendar.LoadFromUri(activity.CalendarUri)
     let iCalFile = Path.Combine(dataDir, activity.Name + ".ics")
-    let existingCalendar =
-        let cal = new iCalendar()
-        if File.Exists(iCalFile) then
-            cal.MergeWith(iCalendar.LoadFromFile(iCalFile).[0])
-        else
-            ()
-        cal
-    let updatedCalendar = calendars |> Seq.fold (fun (calendar:iCalendar) c ->
-                                    calendar.MergeWith(c)
-                                    calendar) existingCalendar
-    let serializer = new iCalendarSerializer();
-    serializer.Serialize(updatedCalendar, iCalFile);
-   
-    updatedCalendar.Events |> Seq.map (findDaysForEvent startDate endDate activity) |> Seq.collect id
+    let calendars = Calendar.LoadFromFile(iCalFile)
+
+    calendars 
+    |> Seq.collect (fun c -> c.Events) 
+    |> Seq.map (findDaysForEvent startDate endDate activity)
+    |> Seq.collect id
 
 let retrieveDaysForYear year activity dataDir =
     let startDate = new DateTime(year, 1, 1, 0, 0, 0)
@@ -87,9 +82,9 @@ let getActivitiesByMonth minDay maxDay (activities: (Activity * Occupation seq) 
             TotalRevenue = workingManDays * (fst a).DayRate 
         })
 
-let mergeCalendars (calendars: IICalendar seq) : iCalendar =
-    let calendar = new iCalendar()
-    calendars |> Seq.fold (fun (calendar:iCalendar) c -> 
+let mergeCalendars (calendars: ICalendar seq) : Calendar =
+    let calendar = new Calendar()
+    calendars |> Seq.fold (fun (calendar:Calendar) c -> 
                                 calendar.MergeWith(c)
                                 calendar) calendar
 
@@ -101,13 +96,13 @@ let getOverloadedDays days =
         && (snd x) |> Seq.sumBy (fun y -> y.Hours) > 8.0)
     |> Seq.sortBy fst
 
-let exportMergedCalendars activities = 
+(*let exportMergedCalendars activities = 
     let mergedCalendar = 
         activities
-        |> Seq.map (fun a -> iCalendar.LoadFromUri(a.CalendarUri))
+        |> Seq.map (fun a -> Calendar.LoadFromUri(a.CalendarUri))
         |> Seq.collect id
-        |> Seq.fold (fun (calendar:iCalendar) c -> 
+        |> Seq.fold (fun (calendar:Calendar) c -> 
                                     calendar.MergeWith(c)
-                                    calendar) (new iCalendar())
-    let serializer = new iCalendarSerializer();
-    serializer.Serialize(mergedCalendar, "mergedCalendar.ics");
+                                    calendar) (new Calendar())
+    let serializer = new CalendarSerializer();
+    serializer.Serialize(mergedCalendar, "mergedCalendar.ics");*)
